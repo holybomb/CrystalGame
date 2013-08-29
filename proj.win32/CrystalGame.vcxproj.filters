@@ -7,6 +7,12 @@
     <Filter Include="Classes">
       <UniqueIdentifier>{bb6c862e-70e9-49d9-81b7-3829a6f50471}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{e3866cf2-6cf2-4a92-89b4-c41739e4e9a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Fonts">
+      <UniqueIdentifier>{0f87c57e-9085-4d50-a788-1b93ff0c836d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -29,5 +35,70 @@
     <ClInclude Include="..\Classes\HelloWorldScene.h">
       <Filter>Classes</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Resources\CloseNormal.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\CloseSelected.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\HelloWorld.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\fonts\Marker Felt.ttf">
+      <Filter>Resources\Fonts</Filter>
+    </None>
+    <None Include="..\Resources\0.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\1.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\2.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\3.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\4.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\background.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\blocktiles.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\bomb.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\bomb-explo.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\bomb-explo-inner.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\bomb-hi.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\bomb-light.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\clickme.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\clickme-down.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\hint.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\logo.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\sparkle.png">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
 </Project>

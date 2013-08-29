@@ -26,53 +26,11 @@ bool HelloWorld::init()
     {
         return false;
     }
-    
-    CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
-    CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
-
-    /////////////////////////////
-    // 2. add a menu item with "X" image, which is clicked to quit the program
-    //    you may modify it.
-
-    // add a "close" icon to exit the progress. it's an autorelease object
-    CCMenuItemImage *pCloseItem = CCMenuItemImage::create(
-                                        "CloseNormal.png",
-                                        "CloseSelected.png",
-                                        this,
-                                        menu_selector(HelloWorld::menuCloseCallback));
-    
-	pCloseItem->setPosition(ccp(origin.x + visibleSize.width - pCloseItem->getContentSize().width/2 ,
-                                origin.y + pCloseItem->getContentSize().height/2));
-
-    // create menu, it's an autorelease object
-    CCMenu* pMenu = CCMenu::create(pCloseItem, NULL);
-    pMenu->setPosition(CCPointZero);
-    this->addChild(pMenu, 1);
-
-    /////////////////////////////
-    // 3. add your codes below...
-
-    // add a label shows "Hello World"
-    // create and initialize a label
-    
-    CCLabelTTF* pLabel = CCLabelTTF::create("Hello World", "Arial", 24);
-    
-    // position the label on the center of the screen
-    pLabel->setPosition(ccp(origin.x + visibleSize.width/2,
-                            origin.y + visibleSize.height - pLabel->getContentSize().height));
-
-    // add the label as a child to this layer
-    this->addChild(pLabel, 1);
-
-    // add "HelloWorld" splash screen"
-    CCSprite* pSprite = CCSprite::create("HelloWorld.png");
-
-    // position the sprite on the center of the screen
-    pSprite->setPosition(ccp(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
-
-    // add the sprite as a child to this layer
-    this->addChild(pSprite, 0);
-    
+	CCSprite* bgSprite = CCSprite::create("background.png");
+	bgSprite->setAnchorPoint(ccp(0.0f,0.0f));
+    this->addChild(bgSprite);
+	CCLayer* gameLayer = CCLayer::create();
+	addChild(genCrystalPad());
     return true;
 }
 
@@ -84,4 +42,59 @@ void HelloWorld::menuCloseCallback(CCObject* pSender)
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     exit(0);
 #endif
+}
+
+CCLayer* HelloWorld::genCrystalPad()
+{
+	CCSize winSize = CCDirector::sharedDirector()->getVisibleSize();
+	CCLayer* mGameLayer = CCLayer::create();
+	mGameLayer->ignoreAnchorPointForPosition(true);
+	mGameLayer->setPosition(0,0);
+	mGameLayer->setContentSize(CCSizeMake(640.0f,600.0f));
+	winSize = mGameLayer->getContentSize();
+	float x = mGameLayer->getPositionX();
+	float y = mGameLayer->getPositionY();
+	float w = winSize.width;
+	float h = winSize.height;
+	CCSprite* spriteBg = CCSprite::create("blocktiles.png");
+	float offX = spriteBg->getContentSize().width+spriteBg->getContentSize().width/2;//w/GAME_LAYER_SIZE_W;
+	float offY = spriteBg->getContentSize().height/2;//h/GAME_LAYER_SIZE_H;
+	int mapW = (w+offX)/offX;
+	int mapH = (h-offY)/offY;
+	spriteBg->release();
+	//        mGameLayer->removeAllChildren();
+	if(mapH%2==0)
+		mapH = mapH-1;
+	for(int i =0;i<mapH;i++)
+	{
+		int maxW = mapW-(i%2==0?0:1);
+		for (int j =0; j<maxW; j++) {
+			CCSprite* spriteBg = CCSprite::create("blocktiles.png");
+			spriteBg->setAnchorPoint(ccp(0.0f, 0.0f));
+
+			int start = 0;
+			int end = 5;
+			int index = CCRANDOM_0_1()*end+start;
+			CCString* file = CCString::createWithFormat("%i.png",index);
+			CCSprite* sprite = CCSprite::create(file->getCString());
+			sprite->setAnchorPoint(ccp(0.5f, 0.5f));
+			int sw = spriteBg->getContentSize().width;
+			int sh = spriteBg->getContentSize().height;
+
+			//                CCLOG("block %d is add",j+mapW*i);
+			if(i%2!=0)
+			{
+				spriteBg->setPosition(ccp(offX*j+offX/2, offY*i));
+				sprite->setPosition(ccp(offX*j+offX/2+sw/2,offY*i+sh/2));
+			}
+			else
+			{
+				spriteBg->setPosition(ccp(offX*j, offY*i));
+				sprite->setPosition(ccp(offX*j+sw/2,offY*i+sh/2));
+			}
+			mGameLayer->addChild(spriteBg,0,-1);
+			mGameLayer->addChild(sprite,1,(j+mapH*i));
+		}
+	}
+	return mGameLayer;
 }
