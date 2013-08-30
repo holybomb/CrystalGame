@@ -100,5 +100,8 @@
     <None Include="..\Resources\sparkle.png">
       <Filter>Resources</Filter>
     </None>
+    <None Include="..\Resources\fade.png">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
 </Project>
