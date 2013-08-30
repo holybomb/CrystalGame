@@ -76,8 +76,8 @@ CCLayer* HelloWorld::genCrystalPad()
 	CCSprite* spriteBg = CCSprite::create("blocktiles.png");
 	float offX = spriteBg->getContentSize().width+spriteBg->getContentSize().width/2;//w/GAME_LAYER_SIZE_W;
 	float offY = spriteBg->getContentSize().height/2;//h/GAME_LAYER_SIZE_H;
-	int mapW = (w+spriteBg->getContentSize().width)/offX;
-	int mapH = (h-spriteBg->getContentSize().height/2)/offY;
+	mapW = (w+spriteBg->getContentSize().width)/offX;
+	mapH = (h-spriteBg->getContentSize().height/2)/offY;
 	spriteBg->release();
 	//        mGameLayer->removeAllChildren();
 	/*if(mapH%2==0)
@@ -92,7 +92,8 @@ CCLayer* HelloWorld::genCrystalPad()
 
 			int start = 0;
 			int end = 5;
-			int index = CCRANDOM_0_1()*end+start;
+			float rnd = CCRANDOM_0_1();
+			int index = rnd*end+start;
 			CCString* file = CCString::createWithFormat("%i.png",index);
 			CCSprite* sprite = CCSprite::create(file->getCString());
 			sprite->setAnchorPoint(ccp(0.5f, 0.5f));
@@ -257,6 +258,7 @@ void HelloWorld::ccTouchEnded( CCTouch *pTouch, CCEvent *pEvent )
 	{
 		showGameEnd();
 	}
+	searchForEmptyNode(mSelectBlock);
 	mSelectBlock->removeAllObjects();
 	mSelectBlock->release();
 	isBeginMove = false;
@@ -280,3 +282,79 @@ void HelloWorld::restartScene( CCObject* pSender )
 {
 	CCDirector::sharedDirector()->sharedDirector()->replaceScene(CCTransitionPageTurn::create(1.0f,HelloWorld::scene(),false));
 }
+CCSprite* HelloWorld::findBlockByPos(float x,float y)
+{
+	CCLayer* mGameLayer = (CCLayer*)getChildByTag(0);
+	CCSprite* block;
+	CCPoint tPoint = ccp(x,y);
+	for(unsigned int i =1;i< (mGameLayer->getChildrenCount());i=i+2)
+	{
+		CCSprite* tblock = (CCSprite*)mGameLayer->getChildByTag(i);
+		if (block==NULL) {
+			CCLOG("block %d is null",i);
+			continue;
+		}
+		CCPoint winPoint = mGameLayer->convertToNodeSpace(block->getPosition());
+		CCRect blockRc = CCRectMake(winPoint.x,winPoint.y, block->getContentSize().width, block->getContentSize().height);
+
+		if(blockRc.containsPoint(tPoint))
+		{
+			block = tblock;
+		}
+	}
+	return block;
+}
+void HelloWorld::searchForEmptyNode(CCArray* mBlockLeft)
+{
+	CCLayer* mGameLayer = (CCLayer*)getChildByTag(0);
+	CCObject* obj = NULL;
+	/*CCARRAY_FOREACH(mSelectBlock,obj)*/
+	CCArray* moveBlocks = CCArray::create();
+	CCSprite* blockBg = (CCSprite*)mGameLayer->getChildByTag(0);
+	int blockH = blockBg->getContentSize().height;
+	int moveH = blockH;
+	for(int i =0;i<mSelectBlock->count();i++)
+	{
+		CCSprite* block = (CCSprite*)mSelectBlock->objectAtIndex(i);
+		int aboveIndex = block->getTag()+(mapW+mapW-1)*2;
+		if (aboveIndex<mGameLayer->getChildrenCount())
+		{
+			CCSprite* aboveBlock = (CCSprite*) mGameLayer->getChildByTag(aboveIndex);
+			if(aboveBlock->isVisible())
+			{
+				moveBlocks->addObject(block);
+				moveBlocks->addObject(aboveBlock);
+				CCMoveBy* moveTo = CCMoveBy::create(0.3f,ccp(0.0f,-moveH));
+				aboveBlock->runAction(moveTo);
+			}
+			else
+				moveH+=moveH;
+		}
+	}
+	for(int i =0;i<moveBlocks->count();i+=2)
+	{
+		CCSprite* block = (CCSprite*)mSelectBlock->objectAtIndex(i);
+		CCSprite* aboveBlock = (CCSprite*)moveBlocks->objectAtIndex(i+1);
+		if (aboveBlock!=NULL)
+		{
+			
+			/*mGameLayer->addChild(aboveBlock,1,block->getTag());
+			mGameLayer->removeChild(block);*/
+		}
+	}
+	for(int i =0;i<mSelectBlock->count();i++)
+	{
+		CCSprite* block = (CCSprite*)mSelectBlock->objectAtIndex(i);
+		int aboveIndex = block->getTag()+(mapW+mapW-1)*2;
+		if (aboveIndex<mGameLayer->getChildrenCount())
+		{
+			CCSprite* aboveBlock = (CCSprite*) mGameLayer->getChildByTag(aboveIndex);
+			if(aboveBlock->isVisible())
+			{
+				mGameLayer->addChild(aboveBlock,1,block->getTag());
+				mGameLayer->removeChild(block);
+			}
+		}
+	}
+}
+
