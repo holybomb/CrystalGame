@@ -235,7 +235,7 @@ void HelloWorld::ccTouchEnded( CCTouch *pTouch, CCEvent *pEvent )
 	CCObject* block = NULL;
 	if(mSelectBlock->count()<3)
 	{
-		CCARRAY_FOREACH(mSelectBlock, block) // ÕýÏò±éÀú
+		CCARRAY_FOREACH(mSelectBlock, block) // â€™ËÅ“ÃšÂ±ÃˆÂ¿Ë™
 		{
 			((CCSprite*)block)->setOpacity(255);
 			// todo with _bullet
@@ -246,7 +246,7 @@ void HelloWorld::ccTouchEnded( CCTouch *pTouch, CCEvent *pEvent )
 		return;
 	}
 	
-	CCARRAY_FOREACH(mSelectBlock, block) // ÕýÏò±éÀú
+	CCARRAY_FOREACH(mSelectBlock, block) // â€™ËÅ“ÃšÂ±ÃˆÂ¿Ë™
 	{
 		((CCSprite*)block)->setVisible(false);
 		//((CCSprite*)block)->removeFromParent();
@@ -331,17 +331,17 @@ void HelloWorld::searchForEmptyNode(CCArray* mBlockLeft)
 				moveH+=moveH;
 		}
 	}
-	for(int i =0;i<moveBlocks->count();i+=2)
-	{
-		CCSprite* block = (CCSprite*)mSelectBlock->objectAtIndex(i);
-		CCSprite* aboveBlock = (CCSprite*)moveBlocks->objectAtIndex(i+1);
-		if (aboveBlock!=NULL)
-		{
-			
-			/*mGameLayer->addChild(aboveBlock,1,block->getTag());
-			mGameLayer->removeChild(block);*/
-		}
-	}
+//	for(int i =0;i<moveBlocks->count();i+=2)
+//	{
+//		CCSprite* block = (CCSprite*)mSelectBlock->objectAtIndex(i);
+//		CCSprite* aboveBlock = (CCSprite*)moveBlocks->objectAtIndex(i+1);
+//		if (aboveBlock!=NULL)
+//		{
+//			
+//			/*mGameLayer->addChild(aboveBlock,1,block->getTag());
+//			mGameLayer->removeChild(block);*/
+//		}
+//	}
 	for(int i =0;i<mSelectBlock->count();i++)
 	{
 		CCSprite* block = (CCSprite*)mSelectBlock->objectAtIndex(i);
@@ -351,6 +351,7 @@ void HelloWorld::searchForEmptyNode(CCArray* mBlockLeft)
 			CCSprite* aboveBlock = (CCSprite*) mGameLayer->getChildByTag(aboveIndex);
 			if(aboveBlock->isVisible())
 			{
+                aboveBlock->removeFromParent();
 				mGameLayer->addChild(aboveBlock,1,block->getTag());
 				mGameLayer->removeChild(block);
 			}
