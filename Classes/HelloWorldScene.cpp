@@ -331,30 +331,5 @@ void HelloWorld::searchForEmptyNode(CCArray* mBlockLeft)
 				moveH+=moveH;
 		}
 	}
-	for(int i =0;i<moveBlocks->count();i+=2)
-	{
-		CCSprite* block = (CCSprite*)mSelectBlock->objectAtIndex(i);
-		CCSprite* aboveBlock = (CCSprite*)moveBlocks->objectAtIndex(i+1);
-		if (aboveBlock!=NULL)
-		{
-			
-			/*mGameLayer->addChild(aboveBlock,1,block->getTag());
-			mGameLayer->removeChild(block);*/
-		}
-	}
-	for(int i =0;i<mSelectBlock->count();i++)
-	{
-		CCSprite* block = (CCSprite*)mSelectBlock->objectAtIndex(i);
-		int aboveIndex = block->getTag()+(mapW+mapW-1)*2;
-		if (aboveIndex<mGameLayer->getChildrenCount())
-		{
-			CCSprite* aboveBlock = (CCSprite*) mGameLayer->getChildByTag(aboveIndex);
-			if(aboveBlock->isVisible())
-			{
-				mGameLayer->addChild(aboveBlock,1,block->getTag());
-				mGameLayer->removeChild(block);
-			}
-		}
-	}
 }
 

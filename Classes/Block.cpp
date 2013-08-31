@@ -1,0 +1,6 @@
+
+bool Block::init()
+{
+
+}
+
