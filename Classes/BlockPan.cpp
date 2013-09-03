@@ -107,11 +107,22 @@ void BlockPan::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent)
 	CCARRAY_FOREACH(blocks,obj)
 	{
 		Block* block = (Block*)obj;
-
+		if (selectBlock->containsObject(block))
+		{
+			ccTouchEnded(pTouch,pEvent);
+			return;
+		}
 		if (block!=NULL && block->isSelected && !block->isRemoved)
 		{
-			if(!selectBlock->containsObject(block)&& block->blockType==mCurSelectType)
-				selectBlock->addObject(block);
+				if(block->blockType==mCurSelectType)
+					selectBlock->addObject(block);
+				else
+				{
+					block->block->setOpacity(255);
+					block->isSelected = false;
+					return;
+				}
+			}
 		}
 	}
 }
@@ -133,17 +144,6 @@ bool BlockPan::isSameTypeBlock(Block* pBlock)
 }
 void BlockPan::ccTouchEnded( CCTouch *pTouch, CCEvent *pEvent )
 {
-	//if(isFallDown) return;
-	//for(unsigned int i =0;i<mGameLayer->getChildrenCount();i+=2)
-	//{
-	//	Block* block = (Block*)mGameLayer->getChildByTag(i+1);
-
-	//	if (block!=NULL && block->isSelected)
-	//	{
-	//		block->blockRemove();
-	//		selectBlock->addObject(block);
-	//	}
-	//}
 	CCObject* obj = NULL;
 	if(selectBlock->count()<3)
 	{
