@@ -1,4 +1,5 @@
 ﻿#include "Block.h"
+#include "BlockPan.h"
 #include "cocos2d.h"
 #include "cocos-ext.h"
 #include "Utils.h"
@@ -13,7 +14,7 @@ bool Block::ccTouchBegan( CCTouch *pTouch, CCEvent *pEvent )
 	if(!block->isVisible()) return false;
 	CCPoint touchLocation = convertTouchToNodeSpace(pTouch); 
 	if(Utils::getRect(block).containsPoint(touchLocation)) 
-	{ 
+	{
 		CCLOG("我被点中了：%d",this->getTag());
 		block->setOpacity(150);
 	} 
@@ -21,17 +22,14 @@ bool Block::ccTouchBegan( CCTouch *pTouch, CCEvent *pEvent )
 	return true;
 }
 
-Block* Block::create(CCSprite* bg,CCSprite* block,int x,int y)
+Block* Block::create(int x,int y,int col)
 {
 	Block *testSprite= new Block();
-	testSprite->blockX = x;
-	testSprite->blockY = y;
 	if(testSprite&&testSprite->init()){
 
 		testSprite->autorelease();
 
-		testSprite->customInit(bg,block);//
-
+		testSprite->customInit(x,y,col);//
 		return testSprite;
 
 	}
@@ -43,29 +41,32 @@ Block* Block::create(CCSprite* bg,CCSprite* block,int x,int y)
 
 }
 
-void Block::customInit(CCSprite* pBgSprite,CCSprite* pBlock)
+void Block::customInit(int x,int y,int col)
 {
-	int sw = pBgSprite->getContentSize().width;
-	int sh = pBgSprite->getContentSize().height;
-	this->bgSprite = pBgSprite;
-	this->block = pBlock;
+	int start = 0;
+	int end = 5;
+	float rnd = CCRANDOM_0_1();
+	int index = rnd*end+start;
+	CCString* file = CCString::createWithFormat("%i.png",index);
+	blockType = index;
+	block = CCSprite::create(file->getCString());
+	blockX = x;
+	blockY = y;
+	this->col = col;
 //	this->addChild(pBgSprite,-1,0);
 //	pBlock->setPosition(ccp(sw/2,sh/2));
-	this->addChild(pBlock,11,0);
-	block->setPosition(ccp(0,400));
-	CCMoveTo* moveTo = CCMoveTo::create(0.5f,CCPointZero);
-	CCEaseSineInOut * easeIn = CCEaseSineInOut::create(moveTo);
-	block->runAction(easeIn);
-	CCString* txt = CCString::createWithFormat("%i,%i,%i",blockX,blockY,getTag());
-	CCLabelTTF* label = CCLabelTTF::create(txt->getCString(),"",20);
-	label->setColor(ccc3(0,0,0));
-	this->addChild(label,12,10);
+	this->addChild(block,11,0);
+	CCString* txt = CCString::createWithFormat("%i,%i,%i",blockX,blockY,col);
+	mLabel = CCLabelTTF::create(txt->getCString(),"",20);
+	mLabel->setColor(ccc3(0,0,0));
+	this->addChild(mLabel,12,BLOCK_LABEL_TAG);
 	setTouchEnabled(true);
 }
 
 Block::Block()
 {
 	isSelected = false;
+	isRemoved = false;
 }
 
 Block::~Block()
@@ -75,41 +76,75 @@ Block::~Block()
 
 void Block::ccTouchEnded( CCTouch *pTouch, CCEvent *pEvent )
 {
-	if(!block->isVisible()) return;
+	if(isRemoved) return;
 	if(block->getOpacity()<255) 
 	{ 
 		CCLOG("我被点中了：%d",this->getTag());
-		isSelected = true;
+		
 	}
 }
 void Block::blockRemove()
 {
-	if(block->isVisible())
-		block->runAction(CCSequence::create(CCBlink::create(0.5f,5),CCToggleVisibility::create(),NULL));
+	if(!isRemoved)
+	{
+		BlockPan* pan = (BlockPan*)getParent();
+		if(pan)
+		{
+			block->runAction(
+				CCSequence::create(CCBlink::create(0.2f,5),
+				CCToggleVisibility::create(),
+				CCCallFunc::create(this,callfunc_selector(Block::removeFromParent)),
+				NULL
+				)
+			);
+		}
+		isRemoved = true;
+	}
 }
 void Block::ccTouchMoved( CCTouch *pTouch, CCEvent *pEvent )
 {
-	if(!block->isVisible()) return;
+	if(isRemoved) return;
 	CCPoint touchLocation = convertTouchToNodeSpace(pTouch); 
 	if(Utils::getRect(block).containsPoint(touchLocation)) 
 	{ 
 		CCLOG("我被点中了：%d",this->getTag());
 		block->setOpacity(150);
-	} 
-
+		isSelected = true;
+	}
 }
 
 void Block::refreshTxt()
 {
-	CCString* txt = CCString::createWithFormat("%i,%i,%i",blockX,blockY,getTag());
-	CCLabelTTF* label = (CCLabelTTF*)getChildByTag(10);
-	label->setString(txt->getCString());
+	CCString* txt = CCString::createWithFormat("%i,%i,%i",blockX,blockY,col);
+	if(mLabel!=NULL)
+		mLabel->setString(txt->getCString());
 }
 
 void Block::setBlockPos( int x,int y )
 {
 	blockX = x;
 	blockY = y;
+	refreshTxt();
+}
+
+void Block::setBlockPos(CCObject* obj)
+{
+	BlockPos* p = (BlockPos*)obj;
+	setBlockPos(p->x,p->y);
 }
 
 
+BlockPos* BlockPos::create( CCPoint p )
+{
+	BlockPos* pos = new BlockPos();
+	if(pos){
+		pos->autorelease();
+		pos->x = p.x;
+		pos->y = p.y;
+		return pos;
+	}
+	CC_SAFE_DELETE(pos);
+
+	return pos;
+
+}

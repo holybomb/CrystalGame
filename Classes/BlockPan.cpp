@@ -1,8 +1,10 @@
 ﻿#include "BlockPan.h"
 #include "Block.h"
+#include "Utils.h"
 
 BlockPan::BlockPan(void)
 {
+	isFallDown = false;
 }
 
 
@@ -26,16 +28,23 @@ bool BlockPan::init()
 void BlockPan::createBlockPan()
 {
 	mBlockLeft = 0;
-	mGameLayer = this;
-	mGameLayer->setContentSize(CCSizeMake(600.0f,700.0f));
+	mGameLayer = CCLayerColor::create();
+	CCLayerColor* mGameLayerBG = CCLayerColor::create();
+	this->setContentSize(CCSizeMake(600.0f,700.0f));
+	mGameLayerBG->setContentSize(this->getContentSize());
+	mGameLayer->setContentSize(this->getContentSize());
+	this->addChild(mGameLayerBG);
+	this->addChild(mGameLayer);
+	//mGameLayerBG->setContentSize(CCSizeMake(600.0f,700.0f));
+	//mGameLayer->setContentSize(CCSizeMake(600.0f,700.0f));
 	CCSize winSize = mGameLayer->getContentSize();
 	float x = mGameLayer->getPositionX();
 	float y = mGameLayer->getPositionY();
 	float w = winSize.width;
 	float h = winSize.height;
 	CCSprite* spriteBg = CCSprite::create("blocktiles.png");
-	float offX = spriteBg->getContentSize().width+spriteBg->getContentSize().width/2;//w/GAME_LAYER_SIZE_W;
-	float offY = spriteBg->getContentSize().height/2;//h/GAME_LAYER_SIZE_H;
+	offX = spriteBg->getContentSize().width+spriteBg->getContentSize().width/2;//w/GAME_LAYER_SIZE_W;
+	offY = spriteBg->getContentSize().height/2;//h/GAME_LAYER_SIZE_H;
 	mapW = (w+spriteBg->getContentSize().width)/offX;
 	mapH = (h-spriteBg->getContentSize().height/2)/offY;
 	spriteBg->release();
@@ -47,34 +56,21 @@ void BlockPan::createBlockPan()
 	for(int i =0;i<mapH;i++)
 	{
 		int maxW = mapW-(i%2==0?0:1);
+		int col =0;
+		if(i%2!=0)
+			col = 1;
 		for (int j =0; j<maxW; j++) {
 			CCSprite* spriteBg = CCSprite::create("blocktiles.png");
-			
-			int start = 0;
-			int end = 5;
-			float rnd = CCRANDOM_0_1();
-			int index = rnd*end+start;
-			CCString* file = CCString::createWithFormat("%i.png",index);
-			CCSprite* block = CCSprite::create(file->getCString());
-			Block* sprite = Block::create(spriteBg,block,j,i);
-			CCLOG("block %d is add",blockId);
-			if(i%2!=0)
-			{
-				spriteBg->setPosition(ccp(offX*j+offX/2+offX/2, offY*i+offY*3/2));
-				sprite->setPosition(ccp(offX*j+offX/2+offX/2, offY*i+offY*3/2));
-			}
-			else
-			{
-				spriteBg->setPosition(ccp(offX*j+offX/2, offY*i+offY*3/2));
-				sprite->setPosition(ccp(offX*j+offX/2, offY*i+offY*3/2));
-			}
-			mGameLayer->addChild(spriteBg,0,blockId++);
+			Block* sprite = createNewBlock(j,i,col);
+			spriteBg->setPosition(sprite->getPosition());
+			sprite->setPosition(ccp(sprite->getPositionX(),sprite->getPositionY()+80));
+			CCMoveTo* moveTo = CCMoveTo::create(0.5f,spriteBg->getPosition());
+			CCEaseSineInOut * easeIn = CCEaseSineInOut::create(moveTo);
+			sprite->runAction(easeIn);
+			mGameLayerBG->addChild(spriteBg,0,0);
 			mGameLayer->addChild(sprite,1);
-			sprite->setTag(blockId++);
-			sprite->refreshTxt();
-			sprite->setUserData(file);
-			file->retain();
 			mBlockLeft++;
+			col+=2;
 		}
 	}
 }
@@ -86,72 +82,171 @@ void BlockPan::registerWithTouchDispatcher()
 
 bool BlockPan::ccTouchBegan( CCTouch *pTouch, CCEvent *pEvent )
 {
+	if(isFallDown) return false;
+	selectBlock = CCArray::create();
+	selectBlock->retain();
+	CCArray* blocks = mGameLayer->getChildren();
+	CCObject* obj = NULL;
+	CCARRAY_FOREACH(blocks,obj)
+	{
+		Block* block = (Block*)obj;
+
+		if (block!=NULL && block->isSelected && !block->isRemoved)
+		{
+			mCurSelectType = block->blockType;
+			return true;
+		}
+	}
 	return true;
 }
+void BlockPan::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent)
+{
+	if(isFallDown) return;
+	CCArray* blocks = mGameLayer->getChildren();
+	CCObject* obj = NULL;
+	CCARRAY_FOREACH(blocks,obj)
+	{
+		Block* block = (Block*)obj;
 
+		if (block!=NULL && block->isSelected && !block->isRemoved)
+		{
+			if(!selectBlock->containsObject(block)&& block->blockType==mCurSelectType)
+				selectBlock->addObject(block);
+		}
+	}
+}
+bool BlockPan::isSameTypeBlock(Block* pBlock)
+{
+	CCObject* obj = NULL;
+	if(selectBlock->count()>0)
+	{
+		CCARRAY_FOREACH(selectBlock,obj)
+		{
+			Block* block = (Block*)obj;
+			if (block->blockType != pBlock->blockType)
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
 void BlockPan::ccTouchEnded( CCTouch *pTouch, CCEvent *pEvent )
 {
-	CCArray* selectBlock = CCArray::create();
-	for(unsigned int i =0;i<mGameLayer->getChildrenCount();i+=2)
-	{
-		Block* block = (Block*)mGameLayer->getChildByTag(i+1);
+	//if(isFallDown) return;
+	//for(unsigned int i =0;i<mGameLayer->getChildrenCount();i+=2)
+	//{
+	//	Block* block = (Block*)mGameLayer->getChildByTag(i+1);
 
-		if (block!=NULL && block->isSelected)
-		{
-			block->blockRemove();
-			selectBlock->addObject(block);
-		}
-	}
-	CCArray* startMoveBlock = CCArray::create();
-	for(unsigned int i =0;i<selectBlock->count();i++)
+	//	if (block!=NULL && block->isSelected)
+	//	{
+	//		block->blockRemove();
+	//		selectBlock->addObject(block);
+	//	}
+	//}
+	CCObject* obj = NULL;
+	if(selectBlock->count()<3)
 	{
-		Block* block = (Block*)selectBlock->objectAtIndex(i);
-		int index = findBlockIDByPos(block->blockX,block->blockY+2);
-		if (index<mGameLayer->getChildrenCount())
+		CCARRAY_FOREACH(selectBlock,obj)
 		{
-			blockFallDown(index,block);
-			//block->removeFromParent();
+			Block* block = (Block*)obj;
+			block->block->setOpacity(255);
+		}
+		isFallDown = false;
+		return;
+	}
+	isFallDown = true;
+	CCLOG("block %d is select",selectBlock->count());
+	obj = NULL;
+	CCARRAY_FOREACH(selectBlock,obj)
+	{
+		Block* block = (Block*)obj;	
+		int lastLine = findLastLineByCol(block->col);
+		Block* newBlock = createNewBlock(block->blockX,lastLine+2,block->col);
+		mGameLayer->addChild(newBlock,1);
+	}
+	blocksRemove();
+}
+Block* BlockPan::createNewBlock(int x,int y,int col)
+{
+	BlockPos* blockPos = ccb(x,y);
+	int i = blockPos->y;
+	int j = blockPos->x;
+	CCPoint pos;
+	if(i%2!=0)
+	{
+		pos = (ccp(offX*j+offX/2+offX/2, offY*i+offY*3/2));
+	}
+	else
+	{
+		pos = (ccp(offX*j+offX/2, offY*i+offY*3/2));
+	}
+	Block* newBlock = Block::create(j,i,col);
+	newBlock->setPosition(pos);
+	return newBlock;
+}
+int BlockPan::findLastLineByCol(int col)
+{
+	int line = 0;
+	CCArray* blocks = mGameLayer->getChildren();
+	CCObject* obj = NULL;
+	CCARRAY_FOREACH(blocks,obj)
+	{
+		Block* block = (Block*)obj;
+		if (block->col==col)
+		{
+			if (line<block->blockY)
+			{
+				line = block->blockY;
+			}
 		}
 	}
+	return line;
 }
-int BlockPan::findBlockIDByPos(int x,int y)
+
+Block* BlockPan::findBlockByPos(int x,int y)
 {
 	int index = 0;
-	CCLOG("x==%i , y==%i",x,y);
-	for(int i =0;i<mapH;i++)
+	CCArray* blocks = mGameLayer->getChildren();
+	CCObject* obj = NULL;
+	CCARRAY_FOREACH(blocks,obj)
 	{
-		int maxW = mapW-(i%2==0?0:1);
-		for (int j =0; j<maxW; j++) {
-			CCLOG("x==%i , y==%i",j,i);
-			if (x==j&&y==i)
-			{
-				return index;
-			}
-			else
-			{
-				index+=2;
-			}
+		Block* block = (Block*)obj;
+		if (block->blockX==x && block->blockY==y)
+		{
+			return block;
 		}
 	}
-	return index;
+	return NULL;
 }
-
-void BlockPan::blockFallDown( int index, Block *block )
+void BlockPan::blocksRemove()
 {
-	int line = block->blockY;
+	CCObject* obj = NULL;
+	CCArray* spwArray = CCArray::create();
+	CCARRAY_FOREACH(selectBlock,obj)
+	{
+		Block* block = (Block*)obj;
+		block->blockRemove();
+		if(block)
+			blockFallDown(block);
+	}
+
+}
+void BlockPan::blockFallDown( CCObject *obj )
+{
+	Block* block = (Block*)obj;
+	int lastLine = findLastLineByCol(block->col);
+	int line = block->blockY+2;
 	CCArray* tFallDown = CCArray::create();
 	Block* blockBase = block; 
-	for(int i = line;i<mapH;i+=2)
+	for(unsigned int i = line;i<=lastLine;i+=2)
 	{
-		Block* blockAbove =(Block*)mGameLayer->getChildByTag(index+1);
-		if(blockAbove !=NULL)
+		Block* blockAbove =(Block*)findBlockByPos(block->blockX,i);
+		if(blockAbove !=NULL && !blockAbove->isRemoved)
 		{
-			tFallDown->addObject(blockBase);
+			tFallDown->addObject(blockAbove);
+
 			//blockAbove->runAction(CCPlace::create(blockBase->getPosition()));
-			/*blockAbove->setTag(blockBase->getTag());
-			blockAbove->setBlockPos(blockBase->blockX,blockBase->blockY);
-			blockAbove->refreshTxt();*/
-			index = findBlockIDByPos(blockBase->blockX,i);
 			blockBase = blockAbove;
 		}
 	}
@@ -160,10 +255,19 @@ void BlockPan::blockFallDown( int index, Block *block )
 	CCARRAY_FOREACH(tFallDown,mBlockAbove)
 	{
 		Block* blockAbove= (Block*)mBlockAbove;
-		blockAbove->runAction(CCMoveTo::create(0.3f,blockBase->getPosition()));
-		/*blockAbove->setTag(blockBase->getTag());
-		blockAbove->setBlockPos(blockBase->blockX,blockBase->blockY);
-		blockAbove->refreshTxt();*/
+		CCMoveTo* moveTo = CCMoveTo::create(0.1f,blockBase->getPosition());
+		CCEaseSineInOut * easeIn = CCEaseSineInOut::create(moveTo);
+		BlockPos* pos = ccb(blockAbove->blockX,blockAbove->blockY-2);
+		blockAbove->setBlockPos(blockAbove->blockX,blockAbove->blockY-2);
+		CCCallFunc* callF = CCCallFunc::create(this,callfunc_selector(BlockPan::moveIsDone));
+		CCSequence* seq = CCSequence::create(CCDelayTime::create(0.2f),easeIn,callF,NULL);
+		blockAbove->runAction(seq);
+		//blockAbove->setBlockPos(blockAbove->blockX,blockAbove->blockY-2);
+		//blockAbove->refreshTxt();
 		blockBase = blockAbove;
 	}
+}
+void BlockPan::moveIsDone()
+{
+	isFallDown = false;
 }

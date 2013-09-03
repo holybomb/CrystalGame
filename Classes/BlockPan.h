@@ -7,11 +7,16 @@ class BlockPan :
 {
 public:
 	int mBlockLeft;
-	CCString* mCurSelectType;
+	bool isFallDown;
+	int mCurSelectType;
 	bool isBeginMove;
 	CCLayer* mGameLayer;
 	int mapW;
 	int mapH;
+	int offX;
+	int offY;
+	CCArray* selectBlock;
+	CCSpawn* blockSpawn;
 public:
 	BlockPan(void);
 	~BlockPan(void);
@@ -21,7 +26,14 @@ public:
 	void registerWithTouchDispatcher();
 	bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
 	void ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent);
-	void blockFallDown( int index, Block *block );
+	void blockFallDown( CCObject *block );
 	int findBlockIDByPos(int x,int y);
+	Block* findBlockByPos(int x,int y);
+	int findLastLineByCol(int x);
+	void moveIsDone();
+	Block* createNewBlock(int x,int y,int col);
+	void blocksRemove();
+	void ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent);
+	bool isSameTypeBlock(Block* pBlock);
 };
 
