@@ -4,6 +4,7 @@
 #include "cocos2d.h"
 #include "cocos-ext.h"
 #include "BlockPan.h"
+#define TOTAL_GAME_TIME 3
 USING_NS_CC;
 USING_NS_CC_EXT;
 class HelloWorld : public cocos2d::CCLayer
@@ -11,10 +12,16 @@ class HelloWorld : public cocos2d::CCLayer
 private:
 	
 public:
+	HelloWorld();
 	CCArray* mSelectBlock;
 	int mapW;
 	int mapH;
 	int mBlockLeft;
+	CCProgressTimer *  pr;
+	BlockPan* gameLayer;
+	int mTime;
+	CCLayer* timeBoard;
+	CCLabelBMFont* scoreTxt;
 	// Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
     virtual bool init();  
 
@@ -28,6 +35,9 @@ public:
     CREATE_FUNC(HelloWorld);
 	void restartScene(CCObject* pSender);
 	void showGameEnd();
+	void countTime(float dt);
+	CCLayer* showTimerBoarder();
+	void updateScore(float dt);
 };
 
 #endif // __HELLOWORLD_SCENE_H__

@@ -1,8 +1,9 @@
 ﻿#include "BlockPan.h"
 #include "Block.h"
+#include "HelloWorldScene.h"
 #include "Utils.h"
+#include "GameData.h"
 int BlockPan::mCurSelectType = -1;
-CCArray* selectBlock = NULL;
 BlockPan::BlockPan(void)
 {
 	isFallDown = false;
@@ -20,8 +21,8 @@ bool BlockPan::init()
 		return false;
 	}
 	createBlockPan();
-	this->setOpacity(150);
-	this->setColor(ccc3(0,0,0));
+	//this->setOpacity(150);
+	//this->setColor(ccc3(0,0,0));
 	this->setTouchEnabled(true);
 	return true;
 }
@@ -29,12 +30,13 @@ bool BlockPan::init()
 void BlockPan::createBlockPan()
 {
 	mBlockLeft = 0;
+	GameData::shareData()->setScore(0);
 	BlockPan::mCurSelectType = -1;
 	selectBlock = CCArray::create();
 	selectBlock->retain();
 	mGameLayer = CCLayerColor::create();
 	CCLayerColor* mGameLayerBG = CCLayerColor::create();
-	this->setContentSize(CCSizeMake(600.0f,700.0f));
+	this->setContentSize(CCSizeMake(630.0f,900.0f));
 	mGameLayerBG->setContentSize(this->getContentSize());
 	mGameLayer->setContentSize(this->getContentSize());
 	this->addChild(mGameLayerBG);
@@ -59,7 +61,7 @@ void BlockPan::createBlockPan()
 	srand((unsigned)time(new time_t()));//重置随机种子
 	for(int i =0;i<mapH;i++)
 	{
-		int maxW = mapW-(i%2==0?0:1);
+		int maxW = mapW;//-(i%2==0?0:1);
 		int col =0;
 		if(i%2!=0)
 			col = 1;
@@ -127,6 +129,9 @@ void BlockPan::ccTouchEnded( CCTouch *pTouch, CCEvent *pEvent )
 		}
 	}
 	BlockPan::mCurSelectType = -1;
+
+	int temp = PER_BLOCK_SCORE*selectBlock->count();
+	GameData::shareData()->addScore(temp);
 	if(selectBlock->count()<3)
 	{
 		CCARRAY_FOREACH(selectBlock,obj)
@@ -257,4 +262,21 @@ void BlockPan::moveIsDone()
 	isFallDown = false;
 	BlockPan::mCurSelectType = -1;
 	setTouchEnabled(true);
+	HelloWorld* hello = (HelloWorld*)getParent();
+	hello->updateScore(0);
+}
+
+void BlockPan::setTouchEnabled( bool value )
+{
+	CCLayerColor::setTouchEnabled(value);
+	CCObject* obj = NULL;
+	if(mGameLayer)
+	{
+		CCArray* blocks = mGameLayer->getChildren();
+		CCARRAY_FOREACH(blocks,obj)
+		{
+			Block* block = (Block*)obj;
+			block->setTouchEnabled(value);
+		}
+	}
 }

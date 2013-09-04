@@ -36,4 +36,5 @@ public:
 	void blocksRemove();
 	void ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent);
 	bool isSameTypeBlock(Block* pBlock);
+	void setTouchEnabled(bool value);
 };

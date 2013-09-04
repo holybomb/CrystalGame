@@ -1,5 +1,6 @@
 ﻿#pragma once
 #define BLOCK_LABEL_TAG 10
+#define PER_BLOCK_SCORE 100
 #define ccb(__X__,__Y__) BlockPos::create(ccp((float)(__X__), (float)(__Y__)))
 //#include "BlockPan.h"
 #include "cocos2d.h"

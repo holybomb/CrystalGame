@@ -64,7 +64,8 @@ void Block::customInit(int x,int y,int col)
 	CCString* txt = CCString::createWithFormat("%i,%i,%i",blockX,blockY,col);
 	mLabel = CCLabelTTF::create(txt->getCString(),"",20);
 	mLabel->setColor(ccc3(0,0,0));
-	this->addChild(mLabel,12,BLOCK_LABEL_TAG);
+	if(	CCDirector::sharedDirector()->isDisplayStats())
+		this->addChild(mLabel,12,BLOCK_LABEL_TAG);
 	setTouchEnabled(true);
 }
 
@@ -142,7 +143,9 @@ void Block::ccTouchMoved( CCTouch *pTouch, CCEvent *pEvent )
 void Block::refreshTxt()
 {
 	CCString* txt = CCString::createWithFormat("%i,%i,%i",blockX,blockY,col);
-	if(mLabel!=NULL)
+	if(	!CCDirector::sharedDirector()->isDisplayStats())
+		return;
+	if(mLabel!=NULL && mLabel->getParent())
 		mLabel->setString(txt->getCString());
 }
 

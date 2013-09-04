@@ -130,6 +130,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\..\external\libwebsockets\win32\lib\*.*" "$(OutD
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
     <ClCompile Include="..\Classes\Block.cpp" />
     <ClCompile Include="..\Classes\BlockPan.cpp" />
+    <ClCompile Include="..\Classes\GameData.cpp" />
     <ClCompile Include="..\Classes\HelloWorldScene.cpp" />
     <ClCompile Include="..\Classes\Utils.cpp" />
     <ClCompile Include="main.cpp" />
@@ -138,6 +139,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\..\external\libwebsockets\win32\lib\*.*" "$(OutD
     <ClInclude Include="..\Classes\AppDelegate.h" />
     <ClInclude Include="..\Classes\Block.h" />
     <ClInclude Include="..\Classes\BlockPan.h" />
+    <ClInclude Include="..\Classes\GameData.h" />
     <ClInclude Include="..\Classes\HelloWorldScene.h" />
     <ClInclude Include="..\Classes\Utils.h" />
     <ClInclude Include="main.h" />
@@ -177,16 +179,23 @@ xcopy /Y /Q "$(ProjectDir)..\..\..\external\libwebsockets\win32\lib\*.*" "$(OutD
     <None Include="..\Resources\bomb-hi.png" />
     <None Include="..\Resources\bomb-light.png" />
     <None Include="..\Resources\bomb.png" />
+    <None Include="..\Resources\btn-pause-down.png" />
+    <None Include="..\Resources\btn-pause.png" />
     <None Include="..\Resources\clickme-down.png" />
     <None Include="..\Resources\clickme.png" />
     <None Include="..\Resources\CloseNormal.png" />
     <None Include="..\Resources\CloseSelected.png" />
     <None Include="..\Resources\fade.png" />
     <None Include="..\Resources\fonts\Marker Felt.ttf" />
+    <None Include="..\Resources\fonts\scorefont.fnt" />
+    <None Include="..\Resources\fonts\scorefont.png" />
+    <None Include="..\Resources\go.png" />
+    <None Include="..\Resources\header.png" />
     <None Include="..\Resources\HelloWorld.png" />
     <None Include="..\Resources\hint.png" />
     <None Include="..\Resources\logo.png" />
     <None Include="..\Resources\sparkle.png" />
+    <None Include="..\Resources\timer.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
