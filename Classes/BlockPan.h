@@ -6,16 +6,17 @@ class BlockPan :
 	public CCLayerColor
 {
 public:
+	static int mCurSelectType;
+public:
+	CCArray* selectBlock;
 	int mBlockLeft;
 	bool isFallDown;
-	int mCurSelectType;
 	bool isBeginMove;
 	CCLayer* mGameLayer;
 	int mapW;
 	int mapH;
 	int offX;
 	int offY;
-	CCArray* selectBlock;
 	CCSpawn* blockSpawn;
 public:
 	BlockPan(void);
@@ -36,4 +37,3 @@ public:
 	void ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent);
 	bool isSameTypeBlock(Block* pBlock);
 };
-

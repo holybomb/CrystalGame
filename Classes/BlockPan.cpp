@@ -1,7 +1,8 @@
 ﻿#include "BlockPan.h"
 #include "Block.h"
 #include "Utils.h"
-
+int BlockPan::mCurSelectType = -1;
+CCArray* selectBlock = NULL;
 BlockPan::BlockPan(void)
 {
 	isFallDown = false;
@@ -28,6 +29,9 @@ bool BlockPan::init()
 void BlockPan::createBlockPan()
 {
 	mBlockLeft = 0;
+	BlockPan::mCurSelectType = -1;
+	selectBlock = CCArray::create();
+	selectBlock->retain();
 	mGameLayer = CCLayerColor::create();
 	CCLayerColor* mGameLayerBG = CCLayerColor::create();
 	this->setContentSize(CCSizeMake(600.0f,700.0f));
@@ -83,74 +87,53 @@ void BlockPan::registerWithTouchDispatcher()
 bool BlockPan::ccTouchBegan( CCTouch *pTouch, CCEvent *pEvent )
 {
 	if(isFallDown) return false;
-	selectBlock = CCArray::create();
-	selectBlock->retain();
-	CCArray* blocks = mGameLayer->getChildren();
-	CCObject* obj = NULL;
-	CCARRAY_FOREACH(blocks,obj)
-	{
-		Block* block = (Block*)obj;
-
-		if (block!=NULL && block->isSelected && !block->isRemoved)
-		{
-			mCurSelectType = block->blockType;
-			return true;
-		}
-	}
+	if(selectBlock)
+		selectBlock->removeAllObjects();
 	return true;
 }
 void BlockPan::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent)
 {
 	if(isFallDown) return;
-	CCArray* blocks = mGameLayer->getChildren();
 	CCObject* obj = NULL;
+	CCArray* blocks = mGameLayer->getChildren();
+	/*CCARRAY_FOREACH(blocks,obj)
+	{
+		Block* block = (Block*)obj;
+		if (selectBlock->containsObject(block))
+		{
+			return;
+		}
+		if (block!=NULL && block->isSelected && !block->isRemoved)
+		{
+			selectBlock->addObject(block);
+		}
+	}*/
+}
+void BlockPan::ccTouchEnded( CCTouch *pTouch, CCEvent *pEvent )
+{
+	CCObject* obj = NULL;
+	CCArray* blocks = mGameLayer->getChildren();
+	selectBlock->removeAllObjects();
 	CCARRAY_FOREACH(blocks,obj)
 	{
 		Block* block = (Block*)obj;
 		if (selectBlock->containsObject(block))
 		{
-			ccTouchEnded(pTouch,pEvent);
 			return;
 		}
 		if (block!=NULL && block->isSelected && !block->isRemoved)
 		{
-				if(block->blockType==mCurSelectType)
-					selectBlock->addObject(block);
-				else
-				{
-					block->block->setOpacity(255);
-					block->isSelected = false;
-					return;
-				}
-			}
+			selectBlock->addObject(block);
 		}
 	}
-}
-bool BlockPan::isSameTypeBlock(Block* pBlock)
-{
-	CCObject* obj = NULL;
-	if(selectBlock->count()>0)
-	{
-		CCARRAY_FOREACH(selectBlock,obj)
-		{
-			Block* block = (Block*)obj;
-			if (block->blockType != pBlock->blockType)
-			{
-				return false;
-			}
-		}
-	}
-	return true;
-}
-void BlockPan::ccTouchEnded( CCTouch *pTouch, CCEvent *pEvent )
-{
-	CCObject* obj = NULL;
+	BlockPan::mCurSelectType = -1;
 	if(selectBlock->count()<3)
 	{
 		CCARRAY_FOREACH(selectBlock,obj)
 		{
 			Block* block = (Block*)obj;
 			block->block->setOpacity(255);
+			block->isSelected = false;
 		}
 		isFallDown = false;
 		return;
@@ -234,7 +217,9 @@ void BlockPan::blocksRemove()
 }
 void BlockPan::blockFallDown( CCObject *obj )
 {
+	setTouchEnabled(false);
 	Block* block = (Block*)obj;
+	CCLOG("fall block is %i,%i",block->blockX,block->blockY);
 	int lastLine = findLastLineByCol(block->col);
 	int line = block->blockY+2;
 	CCArray* tFallDown = CCArray::create();
@@ -270,4 +255,6 @@ void BlockPan::blockFallDown( CCObject *obj )
 void BlockPan::moveIsDone()
 {
 	isFallDown = false;
+	BlockPan::mCurSelectType = -1;
+	setTouchEnabled(true);
 }

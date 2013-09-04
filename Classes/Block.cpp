@@ -15,8 +15,13 @@ bool Block::ccTouchBegan( CCTouch *pTouch, CCEvent *pEvent )
 	CCPoint touchLocation = convertTouchToNodeSpace(pTouch); 
 	if(Utils::getRect(block).containsPoint(touchLocation)) 
 	{
-		CCLOG("我被点中了：%d",this->getTag());
+		if (BlockPan::mCurSelectType<0)
+		{
+			BlockPan::mCurSelectType = blockType;
+		}
+		CCLOG("began ：%d",this->getTag());
 		block->setOpacity(150);
+		isSelected = true;
 	} 
 
 	return true;
@@ -87,8 +92,8 @@ void Block::blockRemove()
 {
 	if(!isRemoved)
 	{
-		BlockPan* pan = (BlockPan*)getParent();
-		if(pan)
+		//BlockPan* pan = (BlockPan*)getParent();
+		//if(pan)
 		{
 			block->runAction(
 				CCSequence::create(CCBlink::create(0.2f,5),
@@ -105,10 +110,31 @@ void Block::ccTouchMoved( CCTouch *pTouch, CCEvent *pEvent )
 {
 	if(isRemoved) return;
 	CCPoint touchLocation = convertTouchToNodeSpace(pTouch); 
+	if (BlockPan::mCurSelectType != blockType)
+	{
+		block->setOpacity(255);
+		return;
+	}
+	BlockPan* pan = (BlockPan*)(getParent()->getParent());
+	if(pan)
+	{
+		if(pan->selectBlock->containsObject(this))
+			return;
+		if( pan->selectBlock &&  pan->selectBlock->count()>0)
+		{
+			Block* temp = (Block*) pan->selectBlock->lastObject();
+			if(abs(temp->col-this->col)>1 || abs(temp->blockY-this->blockY)>2)
+			{
+				block->setOpacity(255);
+				return;
+			}
+		}
+	}
 	if(Utils::getRect(block).containsPoint(touchLocation)) 
 	{ 
-		CCLOG("我被点中了：%d",this->getTag());
+		CCLOG("be choose ：%d",this->getTag());
 		block->setOpacity(150);
+		pan->selectBlock->addObject(this);
 		isSelected = true;
 	}
 }
