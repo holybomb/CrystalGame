@@ -1,6 +1,6 @@
 ﻿#include "BlockPan.h"
 #include "Block.h"
-#include "HelloWorldScene.h"
+#include "GameScene.h"
 #include "Utils.h"
 #include "GameData.h"
 int BlockPan::mCurSelectType = -1;
@@ -39,8 +39,12 @@ void BlockPan::createBlockPan()
 	this->setContentSize(CCSizeMake(630.0f,900.0f));
 	mGameLayerBG->setContentSize(this->getContentSize());
 	mGameLayer->setContentSize(this->getContentSize());
-	this->addChild(mGameLayerBG);
-	this->addChild(mGameLayer);
+	CCClippingNode* clipper = CCClippingNode::create();
+	clipper->setContentSize(CCSizeMake(630.0f,900.0f));
+	clipper->addChild(mGameLayerBG);
+	clipper->addChild(mGameLayer);
+	clipper->setStencil(mGameLayerBG);
+	this->addChild(clipper);
 	//mGameLayerBG->setContentSize(CCSizeMake(600.0f,700.0f));
 	//mGameLayer->setContentSize(CCSizeMake(600.0f,700.0f));
 	CCSize winSize = mGameLayer->getContentSize();
@@ -126,12 +130,11 @@ void BlockPan::ccTouchEnded( CCTouch *pTouch, CCEvent *pEvent )
 		if (block!=NULL && block->isSelected && !block->isRemoved)
 		{
 			selectBlock->addObject(block);
+			int temp = PER_BLOCK_SCORE*selectBlock->count();
+			GameData::shareData()->addScore(temp);
 		}
 	}
 	BlockPan::mCurSelectType = -1;
-
-	int temp = PER_BLOCK_SCORE*selectBlock->count();
-	GameData::shareData()->addScore(temp);
 	if(selectBlock->count()<3)
 	{
 		CCARRAY_FOREACH(selectBlock,obj)
@@ -262,7 +265,7 @@ void BlockPan::moveIsDone()
 	isFallDown = false;
 	BlockPan::mCurSelectType = -1;
 	setTouchEnabled(true);
-	HelloWorld* hello = (HelloWorld*)getParent();
+	GameScene* hello = (GameScene*)getParent();
 	hello->updateScore(0);
 }
 

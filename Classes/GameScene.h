@@ -4,15 +4,15 @@
 #include "cocos2d.h"
 #include "cocos-ext.h"
 #include "BlockPan.h"
-#define TOTAL_GAME_TIME 3
+#define TOTAL_GAME_TIME 60
 USING_NS_CC;
 USING_NS_CC_EXT;
-class HelloWorld : public cocos2d::CCLayer
+class GameScene : public cocos2d::CCLayer
 {
 private:
 	
 public:
-	HelloWorld();
+	GameScene();
 	CCArray* mSelectBlock;
 	int mapW;
 	int mapH;
@@ -32,7 +32,7 @@ public:
     void menuCloseCallback(CCObject* pSender);
     
     // implement the "static node()" method manually
-    CREATE_FUNC(HelloWorld);
+    CREATE_FUNC(GameScene);
 	void restartScene(CCObject* pSender);
 	void showGameEnd();
 	void countTime(float dt);

@@ -59,7 +59,7 @@ void Block::customInit(int x,int y,int col)
 	blockY = y;
 	this->col = col;
 //	this->addChild(pBgSprite,-1,0);
-//	pBlock->setPosition(ccp(sw/2,sh/2));
+	this->setContentSize(block->getContentSize());
 	this->addChild(block,11,0);
 	CCString* txt = CCString::createWithFormat("%i,%i,%i",blockX,blockY,col);
 	mLabel = CCLabelTTF::create(txt->getCString(),"",20);
@@ -116,7 +116,7 @@ void Block::ccTouchMoved( CCTouch *pTouch, CCEvent *pEvent )
 		block->setOpacity(255);
 		return;
 	}
-	BlockPan* pan = (BlockPan*)(getParent()->getParent());
+	BlockPan* pan = (BlockPan*)(getParent()->getParent()->getParent());
 	if(pan)
 	{
 		if(pan->selectBlock->containsObject(this))

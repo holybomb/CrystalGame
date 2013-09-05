@@ -1,7 +1,7 @@
 #include "GameData.h"
 #include "cocos2d.h"
 USING_NS_CC;
-static GameData* data = nullptr;
+static GameData* data = NULL;
 
 GameData::GameData(void)
 {
