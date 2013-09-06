@@ -13,6 +13,9 @@
     <Filter Include="Resources\Fonts">
       <UniqueIdentifier>{0f87c57e-9085-4d50-a788-1b93ff0c836d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\particles">
+      <UniqueIdentifier>{f615fb65-c1bf-4f20-be35-a7ef47564ec9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -153,6 +156,51 @@
     </None>
     <None Include="..\Resources\fonts\scorefont.png">
       <Filter>Resources\Fonts</Filter>
+    </None>
+    <None Include="..\Resources\btn-about-down.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\about-bg.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\about-fade.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\btn-about.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\btn-done.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\btn-done-down.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\btn-play.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\btn-play-down.png">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\Resources\particles\bg-stars.plist">
+      <Filter>Resources\particles</Filter>
+    </None>
+    <None Include="..\Resources\particles\falling-gem.plist">
+      <Filter>Resources\particles</Filter>
+    </None>
+    <None Include="..\Resources\particles\power-play.plist">
+      <Filter>Resources\particles</Filter>
+    </None>
+    <None Include="..\Resources\particles\taken-gem.plist">
+      <Filter>Resources\particles</Filter>
+    </None>
+    <None Include="..\Resources\particles\taken-gem.png">
+      <Filter>Resources\particles</Filter>
+    </None>
+    <None Include="..\Resources\particles\taken-hrow.plist">
+      <Filter>Resources\particles</Filter>
+    </None>
+    <None Include="..\Resources\particles\taken-vrow.plist">
+      <Filter>Resources\particles</Filter>
     </None>
   </ItemGroup>
 </Project>

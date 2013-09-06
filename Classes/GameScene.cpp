@@ -1,6 +1,7 @@
 ﻿#include "GameScene.h"
 #include "BlockPan.h"
 #include "GameData.h"
+#include "MainMenuScene.h"
 USING_NS_CC;
 USING_NS_CC_EXT;
 CCScene* GameScene::scene()
@@ -48,6 +49,11 @@ void GameScene::countTime(float dt)
 {
 	mTime++;
 	CCLOG("countTime = %d",mTime);
+	if(mTime == -2)
+	{
+		showGo();
+
+	}
 	if(mTime==0)
 	{
 		pr->setPercentage(0);
@@ -79,8 +85,20 @@ void GameScene::menuCloseCallback(CCObject* pSender)
 
 void GameScene::restartScene( CCObject* pSender )
 {
-	CCDirector::sharedDirector()->sharedDirector()->replaceScene(GameScene::scene());
+	timeBoard->runAction(CCMoveTo::create(0.3f,ccp(0,1136+158)));
+	gameLayer->showGameEnd();
+	this->runAction(CCSequence::create(CCDelayTime::create(1.5f),CCCallFunc::create(this,callfunc_selector(GameScene::backToMainMenu)),NULL));
 }
+void GameScene::backToMainMenu(CCObject* obj)
+{
+	CCDirector::sharedDirector()->sharedDirector()->replaceScene(MainScene::scene());
+}
+
+void GameScene::backToMainMenu()
+{
+	backToMainMenu(NULL);
+}
+
 CCLayer* GameScene::showTimerBoarder()
 {
 	CCLayer* board = CCLayer::create();
@@ -96,7 +114,7 @@ CCLayer* GameScene::showTimerBoarder()
 	pr = CCProgressTimer::create(CCSprite::create("timer.png"));
 	pr->setPosition(ccp(320,16));
 	pr->setAnchorPoint(ccp(0.5,0));
-	pr->setPercentage(100);
+	pr->setPercentage(1.0f);
 	pr->setType(kCCProgressTimerTypeBar);
 	pr->setMidpoint(ccp(1,0));
 	pr->setBarChangeRate(ccp(1,0));
@@ -104,7 +122,7 @@ CCLayer* GameScene::showTimerBoarder()
 
 	scoreTxt = CCLabelBMFont::create("0","fonts/scorefont.fnt");
 	scoreTxt->setAnchorPoint(ccp(1,0.5f));
-	scoreTxt->setScale(2.0f);
+	scoreTxt->setScale(1.0f);
 	scoreTxt->setAlignment(kCCTextAlignmentRight);
 	scoreTxt->setPosition(ccp(640,110));
 	board->addChild(scoreTxt,10);
@@ -114,13 +132,14 @@ CCLayer* GameScene::showTimerBoarder()
 }
 void GameScene::showGameEnd()
 {
+	gameLayer->showGameEnd();
 	timeBoard->runAction(CCMoveTo::create(0.3f,ccp(0,1136+158)));
 	CCLayer* gameEndLayer = CCLayer::create();
 	CCSprite* bgSprite = CCSprite::create("fade.png");
 	scoreTxt = CCLabelBMFont::create(GameData::shareData()->getScoreString(),"fonts/scorefont.fnt");
 	scoreTxt->setPosition(ccp(320,700));
 	scoreTxt->setScale(0.0f);
-	CCScaleTo* scaleTo = CCScaleTo::create(0.9f,5);
+	CCScaleTo* scaleTo = CCScaleTo::create(0.9f,2.5f);
 	CCEaseElasticInOut* scoreEff = CCEaseElasticInOut::create(scaleTo);
 	scoreTxt->runAction(scoreEff);
 	if(!scoreTxt->getParent())
@@ -129,14 +148,12 @@ void GameScene::showGameEnd()
 	gameEndLayer->addChild(bgSprite);
 	CCLabelTTF* txt = CCLabelTTF::create("Game End","fonts/Marker Felt.ttf",40.0f);
 	txt->setPosition(ccp(320,568));
-
 	gameEndLayer->addChild(txt);
-	CCMenuItemImage* imageItem = CCMenuItemImage::create("CloseNormal.png","CLoseSelected.png", this,menu_selector(GameScene::restartScene));
+	CCMenuItemImage* imageItem = CCMenuItemImage::create("CloseNormal.png","CLoseSelected.png", this,menu_selector(GameScene::backToMainMenu));
 	CCMenu* menu = CCMenu::create(imageItem,NULL);
 	menu->setAnchorPoint(ccp(0,0));
 	menu->setPosition(ccp(320,300));
 	imageItem->setScale(3.0f);
-	gameLayer->runAction(CCScaleTo::create(0.5,0));
 	gameEndLayer->addChild(menu);
 	this->addChild(gameEndLayer,100,this->getChildrenCount());
 }
@@ -147,4 +164,18 @@ void GameScene::updateScore(float dt)
 GameScene::GameScene()
 {
 
+}
+
+void GameScene::showGo()
+{
+	CCSprite* goSprite = CCSprite::create("go.png");
+	goSprite->setPosition(ccp(320,568));
+	this->addChild(goSprite);
+	CCScaleTo* scaleBig = CCScaleTo::create(0.5f,1);
+	CCScaleTo* scaleSmall = CCScaleTo::create(0.0001f,0);
+	CCEaseBounceOut* eff = CCEaseBounceOut::create(scaleBig);
+	eff->bounceTime(3);
+	CCSequence* act = CCSequence::create(CCHide::create(),scaleSmall,CCShow::create(),eff,CCDelayTime::create(0.2),CCScaleTo::create(0.5,0),CCRemoveSelf::create(),NULL);
+	goSprite->setVisible(false);
+	goSprite->runAction(act);
 }

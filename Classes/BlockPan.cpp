@@ -35,13 +35,14 @@ void BlockPan::createBlockPan()
 	selectBlock = CCArray::create();
 	selectBlock->retain();
 	mGameLayer = CCLayerColor::create();
-	CCLayerColor* mGameLayerBG = CCLayerColor::create();
-	this->setContentSize(CCSizeMake(630.0f,900.0f));
-	mGameLayerBG->setContentSize(this->getContentSize());
-	mGameLayer->setContentSize(this->getContentSize());
+	mGameLayerBG = CCLayerColor::create();
+	CCSize size = CCSizeMake(630.0f,900.0f);
+	this->setContentSize(size);
+	mGameLayerBG->setContentSize(size);
+	mGameLayer->setContentSize(size);
 	CCClippingNode* clipper = CCClippingNode::create();
-	clipper->setContentSize(CCSizeMake(630.0f,900.0f));
 	clipper->addChild(mGameLayerBG);
+	clipper->setContentSize(size);
 	clipper->addChild(mGameLayer);
 	clipper->setStencil(mGameLayerBG);
 	this->addChild(clipper);
@@ -73,10 +74,11 @@ void BlockPan::createBlockPan()
 			CCSprite* spriteBg = CCSprite::create("blocktiles.png");
 			Block* sprite = createNewBlock(j,i,col);
 			spriteBg->setPosition(sprite->getPosition());
-			sprite->setPosition(ccp(sprite->getPositionX(),sprite->getPositionY()+80));
+			spriteBg->setOpacity(100);
+			sprite->setPosition(ccp(sprite->getPositionX(),900+80));
 			CCMoveTo* moveTo = CCMoveTo::create(0.5f,spriteBg->getPosition());
 			CCEaseSineInOut * easeIn = CCEaseSineInOut::create(moveTo);
-			sprite->runAction(easeIn);
+			sprite->runAction(CCSequence::create(CCDelayTime::create(0.1f*i),easeIn,NULL));
 			mGameLayerBG->addChild(spriteBg,0,0);
 			mGameLayer->addChild(sprite,1);
 			mBlockLeft++;
@@ -217,6 +219,11 @@ void BlockPan::blocksRemove()
 	CCARRAY_FOREACH(selectBlock,obj)
 	{
 		Block* block = (Block*)obj;
+
+		CCParticleSystem *meteor=CCParticleSystemQuad::create("particles/taken-gem.plist");
+		this->addChild(meteor);
+		meteor->setScale(2);
+		meteor->setPosition(block->getPosition());
 		block->blockRemove();
 		if(block)
 			blockFallDown(block);
@@ -282,4 +289,57 @@ void BlockPan::setTouchEnabled( bool value )
 			block->setTouchEnabled(value);
 		}
 	}
+}
+
+void BlockPan::showGameEnd()
+{
+	if(mGameLayer)
+	{
+		CCObject* obj = NULL;
+		CCArray* blocks = mGameLayer->getChildren();
+		srand(time(new time_t));
+		CCARRAY_FOREACH(blocks,obj)
+		{
+			Block* block = (Block*)obj;
+			block->setTouchEnabled(false);
+			float offBlockX = CCRANDOM_MINUS1_1()*320.0f;
+			float len = CCRANDOM_0_1()*200.0f;
+			float time = CCRANDOM_0_1()+0.6;
+			ccBezierConfig bezier;
+			bezier.controlPoint_1 = block->getPosition();
+			int targetX = block->getPositionX()+offBlockX;
+			CCLOG("offx = %f",offBlockX);
+			bezier.controlPoint_2 = ccp(block->getPositionX()+(targetX-block->getPositionX())/2,block->getPositionY()+len);
+			bezier.endPosition = ccp(targetX,block->getPositionY()-1136);
+			CCBezierTo* bez = CCBezierTo::create(time,bezier);
+			//CCEaseSineIn * eff = CCEaseSineIn ::create(bez);
+			CCJumpTo* eff = CCJumpTo::create(time,ccp(targetX,block->getPositionY()-1136),500.0f,1);
+			block->runAction(CCSequence::create(eff,NULL));
+		}
+	}
+}
+void BlockPan::update(float delta)
+{
+
+}
+void BlockPan::setStatus(int status)
+{
+	mStatus = status;
+}
+void BlockPan::setStatusToInit()
+{
+	setStatus(BLOCK_PAN_STATUS_INIT);
+}
+
+void BlockPan::setStatusToRun()
+{
+	setStatus(BLOCK_PAN_STATUS_RUN);
+}
+void BlockPan::setStatusToShowEnd()
+{
+	setStatus(BLOCK_PAN_STATUS_SHOW_END);
+}
+void BlockPan::setStatusToShowEndOver()
+{
+	setStatus(BLOCK_PAN_STATUS_SHOW_END_OVER);
 }

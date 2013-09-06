@@ -16,6 +16,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     AppDelegate app;
     CCEGLView* eglView = CCEGLView::sharedOpenGLView();
     eglView->setViewName("CrystalGame");
-    eglView->setFrameSize(480, 800);
+    eglView->setFrameSize(480, 854);
     return CCApplication::sharedApplication()->run();
 }

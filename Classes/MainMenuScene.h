@@ -23,6 +23,15 @@ public:
 	~MainMenuScene(void);
 	bool init();
 	CREATE_FUNC(MainMenuScene);
+	void onPlayBtn(CCObject* pSender);
+	void onDoneBtn(CCObject* pSender);
+	void onAboutBtn(CCObject* pSender);
+	CCLayer* showAboutLayer();
+	void onAboutDoneBtn(CCObject* pSender);
+	void startPlay();
+	CCMenu* mainMenu;
+	CCLayer* aboutLayer;
+	CCSprite* logo;
 };
 class MainMenuBGLayer : public CCLayer
 {
@@ -33,5 +42,6 @@ public:
 	CCLayer* createBGEffect();
 	void blockCreator(float delta);
 	CCLayer* mBgEffectLayer;
+	CCLayer* mBgParticleLayer;
 };
 

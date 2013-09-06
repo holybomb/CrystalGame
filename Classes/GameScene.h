@@ -36,8 +36,13 @@ public:
 	void restartScene(CCObject* pSender);
 	void showGameEnd();
 	void countTime(float dt);
+
+	void showGo();
+
 	CCLayer* showTimerBoarder();
 	void updateScore(float dt);
+	void backToMainMenu();
+	void backToMainMenu(CCObject* obj);
 };
 
 #endif // __HELLOWORLD_SCENE_H__

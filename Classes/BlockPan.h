@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "cocos2d.h"
 #include "Block.h"
+
 USING_NS_CC;
 class BlockPan :
 	public CCLayerColor
@@ -8,16 +9,18 @@ class BlockPan :
 public:
 	static int mCurSelectType;
 public:
+	int mStatus;
 	CCArray* selectBlock;
 	int mBlockLeft;
 	bool isFallDown;
 	bool isBeginMove;
-	CCLayer* mGameLayer;
+	CCLayerColor* mGameLayer;
 	int mapW;
 	int mapH;
 	int offX;
 	int offY;
 	CCSpawn* blockSpawn;
+	CCLayerColor*  mGameLayerBG;
 public:
 	BlockPan(void);
 	~BlockPan(void);
@@ -37,4 +40,12 @@ public:
 	void ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent);
 	bool isSameTypeBlock(Block* pBlock);
 	void setTouchEnabled(bool value);
+	void showGameEnd();
+
+	void setStatusToInit();
+	void setStatusToRun();
+	void setStatusToShowEnd();
+	void setStatusToShowEndOver();
+	void setStatus(int status);
+	void update(float delta);
 };

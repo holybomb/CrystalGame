@@ -49,7 +49,7 @@ Block* Block::create(int x,int y,int col)
 void Block::customInit(int x,int y,int col)
 {
 	int start = 0;
-	int end = 5;
+	int end = 4;
 	float rnd = CCRANDOM_0_1();
 	int index = rnd*end+start;
 	CCString* file = CCString::createWithFormat("%i.png",index);
@@ -95,14 +95,10 @@ void Block::blockRemove()
 	{
 		//BlockPan* pan = (BlockPan*)getParent();
 		//if(pan)
+		//CCParticleSystem *meteor=CCParticleSystemQuad::create("particles/taken-gem.plist
 		{
-			block->runAction(
-				CCSequence::create(CCBlink::create(0.2f,5),
-				CCToggleVisibility::create(),
-				CCCallFunc::create(this,callfunc_selector(Block::removeFromParent)),
-				NULL
-				)
-			);
+			this->removeFromParentAndCleanup(true);
+			//block->runAction(CCCallFunc::create(this,callfunc_selector(Block::removeFromParent)));
 		}
 		isRemoved = true;
 	}
